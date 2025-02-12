@@ -1,4 +1,4 @@
-package com.sandom.booking.booking;
+package com.sandom.booking.model;
 
 import java.time.LocalDate;
 

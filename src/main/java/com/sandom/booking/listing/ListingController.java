@@ -6,6 +6,7 @@ import com.sandom.booking.model.ListingDto;
 import com.sandom.booking.model.UserEntity;
 import com.sandom.booking.model.UserRole;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,10 +16,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/listings")
 public class ListingController {
-
     private final BookingService bookingService;
     private final ListingService listingService;
-    private final UserEntity user = new UserEntity(1L, "rich_the_landlord", "YT61cW", UserRole.ROLE_HOST);
 
     public ListingController(BookingService bookingService, ListingService listingService) {
         this.bookingService = bookingService;
@@ -26,13 +25,14 @@ public class ListingController {
     }
 
     @GetMapping
-    public List<ListingDto> getListings() {
+    public List<ListingDto> getListings(@AuthenticationPrincipal UserEntity user) {
         return listingService.getListings(user.getId());
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createListing(
+            @AuthenticationPrincipal UserEntity user,
             @RequestParam("name") String name,
             @RequestParam("address") String address,
             @RequestParam("description") String description,
@@ -44,7 +44,7 @@ public class ListingController {
 
     @DeleteMapping("/{listingId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteListing(@PathVariable Long listingId) {
+    public void deleteListing(@AuthenticationPrincipal UserEntity user, @PathVariable Long listingId) {
         listingService.deleteListing(user.getId(), listingId);
     }
 
@@ -64,7 +64,7 @@ public class ListingController {
     }
 
     @GetMapping("/{listingId}/bookings")
-    public List<BookingDto> getListingBookings(@PathVariable Long listingId) {
+    public List<BookingDto> getListingBookings(@AuthenticationPrincipal UserEntity user, @PathVariable Long listingId) {
         return bookingService.findBookingsByListingId(user.getId(), listingId);
     }
 }
